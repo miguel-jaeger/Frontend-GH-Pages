@@ -1,0 +1,46 @@
+name: Despliegue a GitHub Pages
+
+# Define el evento que dispara el workflow.
+# Se ejecutará cada vez que se haga un push a la rama 'main'.
+on:
+    push:
+        branches:
+            - main
+    # Esto permite la ejecución manual del workflow desde la interfaz de GitHub
+    workflow_dispatch:
+
+# Define los trabajos (jobs) que se ejecutarán
+jobs:
+    build-and-deploy:
+        runs-on: ubuntu-latest # Define el sistema operativo para la ejecución
+
+        steps:
+            # Paso 1: Checkout del código
+            # Clona el repositorio en el runner de GitHub Actions
+            - name: Checkout repository code
+              uses: actions/checkout@v4
+              with:
+                  # Necesario para que GitHub Pages pueda publicar
+                  fetch-depth: 0
+
+            # Paso 2: Configuración de Node.js (necesario para algunas acciones)
+            # Aunque este proyecto es solo HTML/JS, es buena práctica si luego añades React/Vue.
+            - name: Set up Node.js
+              uses: actions/setup-node@v4
+              with:
+                  node-version: "20"
+
+            # Paso 3: Despliegue del Sitio Estático a GitHub Pages
+            # Usamos una acción popular para manejar la publicación
+            - name: Deploy to GitHub Pages
+              uses: peaceiris/actions-gh-pages@v3
+              with:
+                  # Token de autenticación, ya viene preconfigurado en GitHub Actions
+                  github_token: ${{ secrets.GITHUB_TOKEN }}
+                  # Especifica la rama de publicación. Debe coincidir con la configuración de GitHub Pages.
+                  publish_branch: gh-pages
+                  # Especifica la carpeta de donde tomar los archivos.
+                  # '.' significa la raíz del repositorio, donde está index.html
+                  publish_dir: ./
+                  # Este mensaje aparecerá en el commit de la rama gh-pages
+                  commit_message: "Despliegue automático de frontend por GitHub Actions"
